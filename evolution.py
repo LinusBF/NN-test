@@ -1,4 +1,5 @@
 import random
+import math
 
 from network import Network
 
@@ -9,14 +10,13 @@ class EvolutionManager:
         self.topology = topology
         self.genotypes = []
         self.agents = []
-        self.avg_fitness = 0
 
     def start_evolution(self, nr_of_genotypes):
         self.genotypes = []
         temp_network = Network(self.topology)
         for i in range(nr_of_genotypes):
             new_genotype = Genotype([0] * temp_network.weight_count)
-            new_genotype.set_rand_params(-1, 1)
+            new_genotype.set_rand_params(-5, 5)
             self.genotypes.append(new_genotype)
         self.start_evaluation()
 
@@ -26,17 +26,18 @@ class EvolutionManager:
             agents.append(Agent(g, self.topology))
         self.agents = agents
 
-    def evolve(self, inputs, correct):
+    def evaluate(self, inputs, correct):
         for a in self.agents:
             a.evaluate(inputs, correct)
-        new_genotypes, avg_fit = GenerationManager.get_better_population(self.genotypes)
-        self.avg_fitness = avg_fit
+
+    def evolve(self):
+        new_genotypes = GenerationManager.get_better_population(self.genotypes)
         mutated_genotypes = EvolutionManager.mutate(new_genotypes)
         self.generations = self.generations + 1
         self.genotypes = mutated_genotypes
 
     def get_sorted_agents(self):
-        return sorted(self.agents, reverse=True)
+        return sorted(self.agents)
 
     @staticmethod
     def mutate(pop):
@@ -50,20 +51,14 @@ class EvolutionManager:
 class GenerationManager:
     @staticmethod
     def get_better_population(c_pop: list):
-        eval_sum = 0
         for genotype in c_pop:
-            eval_sum = eval_sum + genotype.eval
+            genotype.set_fitness()
 
-        fitness_sum = 0
-        for genotype in c_pop:
-            genotype.set_fitness(eval_sum/len(c_pop))
-            fitness_sum = fitness_sum + genotype.fitness
-
-        c_pop.sort(reverse=True)
+        c_pop.sort()
         int_pop = GenerationManager.get_int_pop(c_pop)
         new_pop = GenerationManager.recombine(int_pop, len(c_pop))
 
-        return [new_pop, eval_sum]
+        return new_pop
 
     @staticmethod
     def get_int_pop(pop):
@@ -101,6 +96,7 @@ class GenerationManager:
 class Agent:
     def __init__(self, genotype, topology):
         self.genotype = genotype
+        self.genotype.eval = []
         self.output = []
         self.network = Network(topology)
         current_param = 0
@@ -116,16 +112,16 @@ class Agent:
     def evaluate(self, inputs, correct):
         network_answer = self.network.process_input(inputs)
         self.output = network_answer
-        evaluation = Agent.eval_progress(network_answer, correct)
-        self.genotype.eval = evaluation
+        evaluation = Agent.eval_diff(network_answer, correct)
+        self.genotype.eval.append(evaluation)
         return evaluation
 
     @staticmethod
     def eval_diff(answer, correct):
         diff_sum = 0
         for i in range(len(answer)):
-            diff_sum = diff_sum + correct[i] - answer[i]
-        return diff_sum / len(answer)
+            diff_sum = diff_sum + math.pow(answer[i] - correct[i], 2)
+        return diff_sum
 
     @staticmethod
     def eval_nr_incorrect(answer, correct):
@@ -150,7 +146,7 @@ class Agent:
 class Genotype:
     def __init__(self, params):
         self.params = params
-        self.eval = 0
+        self.eval = []
         self.fitness = 0
 
     def __lt__(self, other):
@@ -161,8 +157,11 @@ class Genotype:
         for i in range(len(self.params)):
             self.params[i] = random.random() * range_val + min_val
 
-    def set_fitness(self, bench):
-        self.fitness = self.eval  # / bench
+    def set_fitness(self):
+        eval_sum = 0
+        for e in self.eval:
+            eval_sum = eval_sum + e
+        self.fitness = eval_sum / len(self.eval)
 
     def mutate(self):
         for i in range(len(self.params)):

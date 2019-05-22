@@ -4,6 +4,7 @@ import math
 class Network:
     def __init__(self, topology):
         self.topology = topology
+        self.outputs = []
 
         # Calc total amount of weights of all neurons in the network
         total_weights = 0
@@ -17,9 +18,11 @@ class Network:
             self.layers.append(Layer(topology[l], topology[l + 1]))  # +1 for bias
 
     def process_input(self, inputs):
+        self.outputs = []
         output = inputs
         for layer in self.layers:
             output = layer.process_input(output)
+            self.outputs.append(output)
         return output
 
 
