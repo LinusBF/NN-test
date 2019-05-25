@@ -1,3 +1,5 @@
+import sys
+
 from network import Network
 from utils import get_genotype_data_from_file
 
@@ -17,6 +19,12 @@ def ten_arr_test(file_name):
 
     while True:
         ins, out = get_test_ten_arr()
-        ins.append(1)
         print("Answer: " + ", ".join("{:.2f}".format(x) for x in net.process_input(ins)))
         print(net)
+
+
+name = "evo_10_arr_training"
+if len(sys.argv) > 1:
+    name = sys.argv[1]
+
+ten_arr_test(name)
