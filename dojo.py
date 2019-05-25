@@ -7,7 +7,7 @@ TOPOLOGY = [10, 8, 4, 10]
 NR_GENOTYPES = 500
 BATCH_SIZE = 10
 BATCH_FUNC = get_training_batch_ten_arr
-FILE_PREFIX = "evo_10_arr_"
+FILE_PREFIX = "network_"
 
 
 def evolution_based_training(topology, nr_genotypes, batch_size, batch_func, out_file_name):
@@ -35,7 +35,7 @@ def evolution_based_training(topology, nr_genotypes, batch_size, batch_func, out
     print("Saved to file! Filename: " + out_file_name)
 
 
-name = "training"
+name = "latest"
 if len(sys.argv) > 1:
     name = sys.argv[1]
 

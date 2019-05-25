@@ -23,7 +23,7 @@ def ten_arr_test(file_name):
         print(net)
 
 
-name = "evo_10_arr_training"
+name = "network_latest"
 if len(sys.argv) > 1:
     name = sys.argv[1]
 
