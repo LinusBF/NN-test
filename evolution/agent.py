@@ -1,6 +1,4 @@
-import math
-
-from network import Network
+from network.network import Network
 
 
 class Agent:

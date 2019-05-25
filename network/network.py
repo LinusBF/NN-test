@@ -1,4 +1,4 @@
-from layer import Layer
+from network.layer import Layer
 
 
 class Network:

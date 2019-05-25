@@ -1,7 +1,7 @@
 import sys
 
-from network import Network
-from utils import get_genotype_data_from_file
+from network.network import Network
+from utils.utils import get_genotype_data_from_file
 
 
 def get_test_ten_arr():

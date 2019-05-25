@@ -1,7 +1,7 @@
 from evolution.agent import Agent
 from evolution.generation_manager import GenerationManager
 from evolution.genotype import Genotype
-from network import Network
+from network.network import Network
 
 
 class EvolutionManager:
