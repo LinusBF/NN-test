@@ -29,7 +29,6 @@ class Network:
         self.outputs = []
         output = inputs
         for layer in self.layers:
-            output.append(1)
             output = layer.process_input(output)
             self.outputs.append(output)
         return output
@@ -49,9 +48,12 @@ class Layer:
     def __init__(self, neurons, output_neurons):
         self.neurons = neurons
         self.output_neurons = output_neurons
-        self.weights = [[0 for i in range(output_neurons)] for j in range(neurons + 1)]
+        self.weights = [[0 for j in range(output_neurons)] for k in range(neurons + 1)]
 
     def process_input(self, inputs):
+        if len(inputs) > self.neurons:
+            raise ValueError("Amount of inputs has to match amount of input neurons in layer!")
+
         sums = [0 for i in range(self.output_neurons)]
         for j in range(self.output_neurons):  # For each output neuron
             for k in range(self.neurons):  # For input neuron
@@ -74,9 +76,9 @@ class Layer:
         :param value: float
         :return: float
         """
-        if (value > 100):
+        if value > 100:
             return 1
-        elif (value < -100):
+        elif value < -100:
             return 0
         return 1.0 / (1.0 + math.exp(-value))
 
