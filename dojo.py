@@ -1,7 +1,9 @@
 import random
 import csv
-from evolution import EvolutionManager
+from evolution import EvolutionManager, Genotype
 from mnist import MNIST
+
+from network import Network
 
 mndata = MNIST("C:\Projects\python-mnist\data")
 images, labels = mndata.load_training()
@@ -11,12 +13,23 @@ TRAINING_INDEX = 0
 
 
 def save_genotype_to_file(genotype):
-    with open('last_genotype.csv', 'w') as out_file:
+    with open('last_genotype.csv', 'w', newline='') as out_file:
         writer = csv.writer(out_file)
         for p in genotype.params:
             writer.writerow([str(p)])
 
     out_file.close()
+
+
+def get_genotype_from_file(filename):
+    weights = []
+    with open(filename, 'r', newline='\n') as in_file:
+        reader = csv.reader(in_file)
+        for row in reader:
+            weights.append(float(row[0]))
+
+    in_file.close()
+    return weights
 
 
 def get_inputs_and_answer():
@@ -76,9 +89,21 @@ def get_input():
 
 # evolution_based_training(TOPOLOGY, 50, 100000)
 
-top = [10, 8, 8, 10]
+"""
+net = Network([10, 4, 4, 10])
+genotype = Genotype([0] * net.weight_count)
+genotype.set_rand_params(-1, 1)
+net.set_weights(genotype.params)
+print(net.layers[0].weights)
+print(net.layers[1].weights)
+print(net.layers[2].weights)
+"""
+
+
+
+top = [10, 10, 10]
 evo = EvolutionManager(top)
-evo.start_evolution(100)
+evo.start_evolution(500)
 
 best_genotype = None
 want_to_quit = False
@@ -89,19 +114,30 @@ try:
         for ins, out in get_ten_inputs():
             evo.evaluate(ins, out)
         evo.evolve()
-        print("Gen: " + str(evo.generations))
-        print(str(evo.genotypes[0].fitness))
+        print('Generation %d finished: %f\r' % (evo.generations, evo.genotypes[0].fitness), end="")
+        #sorted_agents = evo.get_sorted_agents()
         best_genotype = evo.genotypes[0]
+
+        #if evo.generations % 100 is 0:
+        #    print("\n")
+        #    print(evo.get_sorted_agents()[0].network)
 
 except KeyboardInterrupt:
     want_to_quit = True
 
-
+print("\n")
 save_genotype_to_file(best_genotype)
+print("Saved to file!")
+
+
+"""
+w = get_genotype_from_file("last_genotype_perfect_1.csv")
+net = Network([10, 10])
+net.set_weights(w)
 
 while True:
     ins, out = get_input()
-    evo.evaluate(ins, out)
-    print(str(evo.genotypes[0].fitness))
-    for i, o in enumerate(evo.get_sorted_agents()[0].network.outputs):
-        print("Layer " + str(i + 1) + ": " + ", ".join("{:.2f}".format(x) for x in o))
+    ins.append(1)
+    print("Answer: " + ", ".join("{:.2f}".format(x) for x in net.process_input(ins)))
+    print(net)
+"""

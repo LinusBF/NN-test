@@ -17,29 +17,46 @@ class Network:
         for l in range(len(topology) - 1):
             self.layers.append(Layer(topology[l], topology[l + 1]))  # +1 for bias
 
+    def set_weights(self, weights):
+        current_weight = 0
+        for layer in self.layers:
+            for i in range(len(layer.weights)):
+                for j in range(len(layer.weights[i])):
+                    layer.weights[i][j] = weights[current_weight]
+                    current_weight += 1
+
     def process_input(self, inputs):
         self.outputs = []
         output = inputs
         for layer in self.layers:
+            output.append(1)
             output = layer.process_input(output)
             self.outputs.append(output)
         return output
+
+    def __str__(self):
+        s = "Network:\n"
+        for idx, layer in enumerate(self.layers):
+            s += "\tLayer " + str(idx) + ": "
+            s += str(layer.weights) + "\n"
+        for idx, out in enumerate(self.outputs):
+            s += "\tOutput " + str(idx) + ": "
+            s += str(out) + "\n"
+        return s
 
 
 class Layer:
     def __init__(self, neurons, output_neurons):
         self.neurons = neurons
         self.output_neurons = output_neurons
-        self.weights = [[0] * output_neurons] * (neurons + 1)
+        self.weights = [[0 for i in range(output_neurons)] for j in range(neurons + 1)]
 
     def process_input(self, inputs):
-        sums = [0] * self.output_neurons
-        biased_input = inputs.copy()
-        biased_input.append(1.0)  # Bias neuron
-
-        for j in range(len(self.weights[0])):  # For each output neuron
-            for i in range(len(self.weights)):  # For each weight in input neuron (+ bias neuron)
-                sums[j] = sums[j] + biased_input[i] * self.weights[i][j]
+        sums = [0 for i in range(self.output_neurons)]
+        for j in range(self.output_neurons):  # For each output neuron
+            for k in range(self.neurons):  # For input neuron
+                sums[j] += inputs[k] * self.weights[k][j]
+            sums[j] += self.weights[self.neurons][j]  # Add Bias
 
         for s in range(len(sums)):
             sums[s] = self.activate_function(sums[s])
@@ -57,7 +74,11 @@ class Layer:
         :param value: float
         :return: float
         """
-        return (1.0 / (1.0 + math.exp(-1 * value))) if value > -100.0 else 1.0
+        if (value > 100):
+            return 1
+        elif (value < -100):
+            return 0
+        return 1.0 / (1.0 + math.exp(-value))
 
     @staticmethod
     def soft_sigmoid(value):

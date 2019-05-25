@@ -58,6 +58,9 @@ class GenerationManager:
         int_pop = GenerationManager.get_int_pop(c_pop)
         new_pop = GenerationManager.recombine(int_pop, len(c_pop))
 
+        for genotype in new_pop[-5:]:
+            genotype.set_rand_params(-1, 1)
+
         return new_pop
 
     @staticmethod
@@ -99,12 +102,7 @@ class Agent:
         self.genotype.eval = []
         self.output = []
         self.network = Network(topology)
-        current_param = 0
-        for layer in self.network.layers:
-            for i in range(len(layer.weights)):
-                for j in range(len(layer.weights[i])):
-                    layer.weights[i][j] = genotype.params[current_param]
-                    current_param = current_param + 1
+        self.network.set_weights(genotype.params)
 
     def __lt__(self, other):
         return self.genotype.fitness < other.genotype.fitness
@@ -165,7 +163,7 @@ class Genotype:
 
     def mutate(self):
         for i in range(len(self.params)):
-            if random.random() < 0.5:
+            if random.random() < 0.3:
                 if random.random() > 0.5:
                     self.params[i] = self.params[i] * (random.random() * 2)
                 else:
