@@ -1,7 +1,7 @@
 import sys
 from evolution.manager import EvolutionManager
-from training_data import get_training_batch_ten_arr_rand, get_training_batch_ten_arr
-from utils import save_genotype_data_to_file
+from utils.training_data import get_training_batch_ten_arr
+from utils.utils import save_genotype_data_to_file
 
 TOPOLOGY = [10, 8, 4, 10]
 NR_GENOTYPES = 500
