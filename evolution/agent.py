@@ -25,7 +25,7 @@ class Agent:
     def eval_diff(answer, correct):
         diff_sum = 0
         for i in range(len(answer)):
-            diff_sum = diff_sum + math.pow(answer[i] - correct[i], 2)
+            diff_sum = diff_sum + (answer[i] - correct[i]) ** 2
         return diff_sum
 
     @staticmethod

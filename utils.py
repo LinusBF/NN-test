@@ -20,4 +20,4 @@ def get_genotype_data_from_file(filename):
             weights.append(float(row[0]))
 
     in_file.close()
-    return [weights, (int(x) for x in topology)]
+    return [weights, [int(x) for x in topology]]
