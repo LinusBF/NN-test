@@ -45,7 +45,7 @@ class Layer:
         """
         The SoftSign function as proposed by Xavier Glorot and Yoshua Bengio (2010):
         "Understanding the difficulty of training deep feedforward neural networks".
-        :param value: int
-        :return: int
+        :param value: float
+        :return: float
         """
         return abs(value / (abs(value) + 1.0))
