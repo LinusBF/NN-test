@@ -23,7 +23,7 @@ def save_genotype_to_file(genotype):
 
 def get_genotype_from_file(filename):
     weights = []
-    with open(filename, 'r', newline='\n') as in_file:
+    with open(filename, 'r', newline='') as in_file:
         reader = csv.reader(in_file)
         for row in reader:
             weights.append(float(row[0]))
