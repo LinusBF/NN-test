@@ -47,11 +47,16 @@ class Network:
         return output
 
     def __str__(self):
-        s = "Network:\n"
+        s = "Network: (" + str(self.topology) + ")\n"
         for idx, layer in enumerate(self.layers):
-            s += "\tLayer " + str(idx) + ": "
-            s += str(layer.weights) + "\n"
+            s += "\tLayer " + str(idx) + ":\n"
+            for w in layer.weights:
+                s += "\t\t["
+                s += ", ".join("{:.2f}".format(x) for x in w[:10])
+                s += ", ...]\n" if len(w) > 9 else "]\n"
+            s += "\n"
+
         for idx, out in enumerate(self.outputs):
             s += "\tOutput " + str(idx) + ": "
-            s += str(out) + "\n"
+            s += ", ".join("{:.2f}".format(x) for x in out) + "\n"
         return s
