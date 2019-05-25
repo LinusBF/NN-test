@@ -1,8 +1,12 @@
-import math
+from layer import Layer
 
 
 class Network:
     def __init__(self, topology):
+        """
+
+        :type topology: [int] An list of integers, representing the number of neurons in each layer
+        """
         self.topology = topology
         self.outputs = []
 
@@ -18,10 +22,19 @@ class Network:
             self.layers.append(Layer(topology[l], topology[l + 1]))  # +1 for bias
 
     def set_weights(self, weights):
+        """
+        Applies the weights given to all layers in the network
+        :type weights: float[] A list of floats that correspond to the weight between every pair of neurons in the
+        network on the format:
+        If the network has the topology [2, 3, 2] =>
+        weight[0] is the weight from the 1st input neuron in the 1st layer to the first output neuron of that layer
+        weight[4] is the weight from the 2nd input neuron in the 1st layer and the 2nd output neuron of that layer
+        weight[7] is the weight from the 1st input neuron in the 2nd layer and the 2nd output neuron of that layer
+        """
         current_weight = 0
         for layer in self.layers:
-            for i in range(len(layer.weights)):
-                for j in range(len(layer.weights[i])):
+            for i in range(len(layer.weights)):  # Each input neuron in the layer
+                for j in range(len(layer.weights[i])):  # Each output neuron in the layer
                     layer.weights[i][j] = weights[current_weight]
                     current_weight += 1
 
@@ -42,52 +55,3 @@ class Network:
             s += "\tOutput " + str(idx) + ": "
             s += str(out) + "\n"
         return s
-
-
-class Layer:
-    def __init__(self, neurons, output_neurons):
-        self.neurons = neurons
-        self.output_neurons = output_neurons
-        self.weights = [[0 for j in range(output_neurons)] for k in range(neurons + 1)]
-
-    def process_input(self, inputs):
-        if len(inputs) > self.neurons:
-            raise ValueError("Amount of inputs has to match amount of input neurons in layer!")
-
-        sums = [0 for i in range(self.output_neurons)]
-        for j in range(self.output_neurons):  # For each output neuron
-            for k in range(self.neurons):  # For input neuron
-                sums[j] += inputs[k] * self.weights[k][j]
-            sums[j] += self.weights[self.neurons][j]  # Add Bias
-
-        for s in range(len(sums)):
-            sums[s] = self.activate_function(sums[s])
-
-        return sums
-
-    @staticmethod
-    def activate_function(value):
-        return Layer.sigmoid(value)
-
-    @staticmethod
-    def sigmoid(value):
-        """
-        Simple Sigmoid function to determine the activation of the neuron
-        :param value: float
-        :return: float
-        """
-        if value > 100:
-            return 1
-        elif value < -100:
-            return 0
-        return 1.0 / (1.0 + math.exp(-value))
-
-    @staticmethod
-    def soft_sigmoid(value):
-        """
-        The SoftSign function as proposed by Xavier Glorot and Yoshua Bengio (2010):
-        "Understanding the difficulty of training deep feedforward neural networks".
-        :param value: int
-        :return: int
-        """
-        return abs(value / (abs(value) + 1.0))
