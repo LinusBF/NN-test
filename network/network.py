@@ -8,7 +8,8 @@ class Network:
         :type topology: [int] An list of integers, representing the number of neurons in each layer
         """
         self.topology = topology
-        self.outputs = []
+        self.activations = []
+        self.neuron_values = []
 
         # Calc total amount of weights of all neurons in the network
         total_weights = 0
@@ -39,12 +40,14 @@ class Network:
                     current_weight += 1
 
     def process_input(self, inputs):
-        self.outputs = []
-        output = inputs
+        self.activations = []
+        self.neuron_values = []
+        activation = inputs
         for layer in self.layers:
-            output = layer.process_input(output)
-            self.outputs.append(output)
-        return output
+            activation, neuron_values = layer.process_input(activation)
+            self.activations.append(activation)
+            self.neuron_values.append(neuron_values)
+        return activation
 
     def __str__(self):
         s = "Network: (" + str(self.topology) + ")\n"
@@ -56,7 +59,7 @@ class Network:
                 s += ", ...]\n" if len(w) > 9 else "]\n"
             s += "\n"
 
-        for idx, out in enumerate(self.outputs):
+        for idx, out in enumerate(self.activations):
             s += "\tOutput " + str(idx) + ": "
             s += ", ".join("{:.2f}".format(x) for x in out) + "\n"
         return s

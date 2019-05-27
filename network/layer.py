@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 class Layer:
@@ -8,20 +9,23 @@ class Layer:
         self.weights = [[0 for j in range(output_neurons)] for k in range(neurons + 1)]  # +1 for bias weight
 
     def process_input(self, inputs):
-        if len(inputs) > self.neurons:
+        if inputs.size > self.neurons:
+            print(inputs.size, self.neurons)
             raise ValueError("Amount of inputs has to match amount of input neurons in layer!")
 
-        sums = [0] * self.output_neurons
+        neuron_values = np.zeros((self.output_neurons, 1))
+        sums = np.zeros((self.output_neurons, 1))
         for j in range(self.output_neurons):  # For each output neuron
             for k in range(self.neurons):  # For input neuron
-                sums[j] += inputs[k] * self.weights[k][j]
-            sums[j] += self.weights[self.neurons][j]  # Add Bias
+                sums[j][0] += inputs[k][0] * self.weights[k][j]
+            sums[j][0] += self.weights[self.neurons][j]  # Add Bias
+            neuron_values[j][0] = sums[j][0]
 
         # Apply activation function to keep layer output within the range 0.0 -> 1.0
-        for s in range(len(sums)):
-            sums[s] = self.activate_function(sums[s])
+        for s in range(sums.size):
+            sums[s][0] = self.activate_function(sums[s][0])
 
-        return sums
+        return [sums, neuron_values]
 
     @staticmethod
     def activate_function(value):
@@ -34,11 +38,7 @@ class Layer:
         :param value: float
         :return: float
         """
-        if value > 100:
-            return 1
-        elif value < -100:
-            return 0
-        return 1.0 / (1.0 + math.exp(-value))
+        return 1.0 / (1.0 + np.exp(-value))
 
     @staticmethod
     def soft_sigmoid(value):

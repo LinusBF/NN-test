@@ -1,7 +1,12 @@
 import sys
+
+from backprop.manager import BackPropManager
+from evolution.genotype import Genotype
 from evolution.manager import EvolutionManager
+from network.network import Network
 from utils.training_data import get_training_batch_ten_arr
 from utils.utils import save_genotype_data_to_file
+import random as rand
 
 TOPOLOGY = [10, 8, 4, 10]
 NR_GENOTYPES = 500
@@ -34,9 +39,31 @@ def evolution_based_training(topology, nr_genotypes, batch_size, batch_func, out
     save_genotype_data_to_file(best_genotype, topology, out_file_name)
     print("Saved to file! Filename: " + out_file_name)
 
-
+"""
 name = "latest"
 if len(sys.argv) > 1:
     name = sys.argv[1]
 
 evolution_based_training(TOPOLOGY, NR_GENOTYPES, BATCH_SIZE, BATCH_FUNC, FILE_PREFIX + name)
+"""
+
+n = Network([2, 3, 3, 3, 2])
+g = Genotype([0] * n.weight_count)
+g.set_rand_params(-1, 1)
+n.set_weights(g.params)
+
+train_data = []
+for i in range(10000):
+    ins = [rand.random(), rand.random()]
+    training_pair = [ins, ins]
+    train_data.append(training_pair)
+
+test_data = []
+for i in range(1001):
+    ins = [rand.random(), rand.random()]
+    test_pair = [ins, ins]
+    test_data.append(test_pair)
+
+back_prop = BackPropManager(n)
+back_prop.train_network(train_data, 10, test_data)
+print("Done!")
